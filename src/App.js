@@ -1,50 +1,60 @@
 import React, { useState } from "react";
 import "./App.css";
+import axios from "axios";
 
 function App() {
-  const [city, setCity] = useState("");
-  const [weatherData, setWeatherData] = useState({
-    name: "",
-    temp: "",
-    description: "",
-  });
+  const [city, setcity] = useState("");
+  const [weather, setweather] = useState("");
+  const [temp, settemp] = useState("");
+  const [description, setdescription] = useState("");
 
-  const handleReport = () => {
-    if (city.trim() === "") {
-      alert("Please enter a city name!");
-      return;
-    }
+  function handleCity(evt) {
+    setcity(evt.target.value);
+  }
 
-    // 🔹 Dummy data (store pannuradhu only)
-    setWeatherData({
-      name: city,
-      temp: "30°C",
-      description: "Clear Sky",
-    });
-
-    setCity(""); // clear input
-  };
+  function getWeather() {
+    axios
+      .get(
+        `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=dd9c7e6a8edb14e0a036ce478a2e56ac&units=metric`
+      )
+      .then(function (Success) {
+        console.log(Success.data);
+        setweather(Success.data.weather[0].main);
+        settemp(Success.data.main.temp);
+        setdescription(Success.data.weather[0].description);
+      })
+      .catch(function (error) {
+        console.error("Error fetching weather:", error);
+        alert("City not found! Please enter a valid city.");
+      });
+  }
 
   return (
     <div className="container">
       <h2>Weather Report</h2>
-      <p>I can give you a weather report about your city !</p>
+      <p>I can give you a weather report about your city!</p>
 
       <input
         type="text"
+        onChange={handleCity}
         placeholder="Enter your City Name"
-        value={city}
-        onChange={(e) => setCity(e.target.value)}
         className="input"
-      /><br></br>
-      <button onClick={handleReport} className="button">
+      />
+      <br />
+      <button onClick={getWeather} className="button">
         Get Report
       </button>
 
       <div className="result">
-        <p><strong>Weather:</strong> {weatherData.name}</p>
-        <p><strong>Temperature:</strong> {weatherData.temp}</p>
-        <p><strong>Description:</strong> {weatherData.description}</p>
+        <p>
+          <strong>Weather:</strong> {weather}
+        </p>
+        <p>
+          <strong>Temperature:</strong> {temp} °C
+        </p>
+        <p>
+          <strong>Description:</strong> {description}
+        </p>
       </div>
     </div>
   );
